@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nutrition Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --primary: #4caf50;
+      --secondary: #2196f3;
+      --danger: #e53935;
+      --light: #f1f1f1;
+      --dark: #333;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Kanit', sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #e1f5fe);
+      margin: 0; padding: 0; color: var(--dark);
+    }
+    .container {
+      max-width: 1000px; margin: 40px auto;
+      background: white; padding: 30px;
+      border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    h2 { text-align: center; color: var(--primary); }
+    label, select {
+      display: block; margin: 20px auto; max-width: 300px; font-size: 1rem;
+    }
+    select {
+      padding: 10px; border-radius: 8px; border: 1px solid #ccc;
+      font-family: 'Kanit', sans-serif;
+    }
+    table {
+      width: 100%; border-collapse: collapse; margin-top: 20px;
+      font-family: 'Kanit', sans-serif;
+    }
+    th, td {
+      padding: 8px; border: 1px solid #ddd; text-align: center;
+    }
+    th { background-color: var(--secondary); color: white; }
+    input[list], input[type="number"] {
+      width: 80px; padding: 4px;
+      border: 1px solid #ccc; border-radius: 5px;
+      font-size: 0.9rem; font-family: 'Kanit', sans-serif;
+    }
+    td:first-child input { width: 100%; }
+    .btn {
+      padding: 10px 20px; border: none; border-radius: 8px;
+      font-size: 1rem; cursor: pointer; margin-top: 20px;
+      font-family: 'Kanit', sans-serif;
+    }
+    .btn-add { background-color: var(--primary); color: white; }
+    .btn-remove {
+      background-color: var(--danger); color: white;
+      font-size: 0.9rem; padding: 4px 8px;
+      border-radius: 4px; display: flex;
+      align-items: center; justify-content: center;
+      width: 28px; height: 28px; margin: auto;
+    }
+    .total {
+      margin-top: 30px; background-color: var(--light);
+      padding: 15px; border-radius: 8px;
+      font-size: 1.1rem; text-align: center;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+    }
+    .instructions {
+      margin-top: 30px; background-color: #fff8e1;
+      padding: 15px; border-left: 5px solid var(--primary);
+      border-radius: 8px; font-size: 1rem;
+      display: none; font-family: 'Kanit', sans-serif;
+    }
+    .center-button {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>คำนวณสารอาหารเมนูอาหาร</h2>
+    <label for="menuSelect">เลือกเมนู:
+      <select id="menuSelect"></select>
+    </label>
+
+    <table id="ingredientTable">
+      <thead>
+        <tr>
+          <th>วัตถุดิบ</th>
+          <th>Protein</th>
+          <th>Carb</th>
+          <th>Sugar</th>
+          <th>Fat</th>
+          <th>Cal</th>
+          <th>Sodium</th>
+          <th>ลบ</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <button class="btn btn-add" onclick="addRow()">➕ เพิ่มวัตถุดิบ</button>
+    <div class="total" id="totalBox">รวม: Protein: 0g | Carb: 0g | Sugar: 0g | Fat: 0g | Cal: 0 kcal | Sodium: 0 mg</div>
+    <div class="instructions" id="instructionsBox"></div>
+  </div>
+
+  <datalist id="ingredientList"></datalist>
+
+  <script>
+    let allIngredients = []; // รายชื่อวัตถุดิบแบบ autocomplete
+    let ingredientDataMap = {}; // วัตถุดิบ -> ค่าทางโภชนาการ
+
+    async function fetchMenus() {
+      const res = await fetch("https://script.google.com/macros/s/AKfycbwVMrWkbCX9wuBeTo2QoX9j0GoTKUPMNyf1phYGZhYWuJysT3wQQ-MckvwiKBbcovSV7Q/exec");
+      const data = await res.json();
+
+      // เมนูอาหาร
+      const select = document.getElementById('menuSelect');
+      select.innerHTML = '<option value="">-- เลือกเมนู --</option>';
+      for (const menu of data.menus) {
+        const option = document.createElement('option');
+        option.value = menu.name;
+        option.textContent = menu.label;
+        option.dataset.ingredients = JSON.stringify(menu.ingredients);
+        option.dataset.instructions = menu.instructions || '';
+        select.appendChild(option);
+      }
+
+      // วัตถุดิบ
+      const raw = data.ingredients || [];
+      allIngredients = [];
+      ingredientDataMap = {};
+      raw.forEach(item => {
+        if (typeof item === 'object' && item.ingredient) {
+          allIngredients.push(item.ingredient);
+          ingredientDataMap[item.ingredient] = {
+            protein: item.protein || 0,
+            carb: item.carb || 0,
+            sugar: item.sugar || 0,
+            fat: item.fat || 0,
+            cal: item.cal || 0,
+            sodium: item.sodium || 0
+          };
+        } else if (typeof item === 'string') {
+          allIngredients.push(item);
+        }
+      });
+
+      // เติมใน datalist
+      const list = document.getElementById('ingredientList');
+      list.innerHTML = '';
+      allIngredients.forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        list.appendChild(option);
+      });
+    }
+
+    document.getElementById('menuSelect').addEventListener('change', e => {
+      const selected = e.target.selectedOptions[0];
+      const ingredients = JSON.parse(selected.dataset.ingredients || '[]');
+      const instructions = selected.dataset.instructions;
+
+      document.querySelector('#ingredientTable tbody').innerHTML = '';
+      document.getElementById('instructionsBox').style.display = instructions ? 'block' : 'none';
+      document.getElementById('instructionsBox').innerHTML = instructions;
+      ingredients.forEach(row => addRow(row));
+    });
+
+    function addRow(values = {}) {
+      const tbody = document.querySelector('#ingredientTable tbody');
+      const row = document.createElement('tr');
+      const fields = ['ingredient','protein','carb','sugar','fat','cal','sodium'];
+
+      fields.forEach((field, index) => {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+
+        if (field === 'ingredient') {
+          input.type = 'text';
+          input.setAttribute('list', 'ingredientList');
+          input.setAttribute('name', 'ingredient-' + Date.now());
+          input.setAttribute('autocomplete', 'on');
+          input.placeholder = 'กรอกวัตถุดิบเพิ่มเติม';
+
+          input.onchange = () => {
+            const val = input.value;
+            const found = ingredientDataMap[val];
+            if (found) {
+              const cells = row.querySelectorAll('td input');
+              cells[1].value = found.protein;
+              cells[2].value = found.carb;
+              cells[3].value = found.sugar;
+              cells[4].value = found.fat;
+              cells[5].value = found.cal;
+              cells[6].value = found.sodium;
+              updateTotals();
+            }
+          };
+        } else {
+          input.type = 'number';
+        }
+
+        input.value = values[field] !== undefined ? values[field] : '';
+        input.oninput = updateTotals;
+        td.appendChild(input);
+        row.appendChild(td);
+      });
+
+      const tdRemove = document.createElement('td');
+      const btn = document.createElement('button');
+      btn.textContent = '❌';
+      btn.className = 'btn btn-remove';
+      btn.onclick = () => { row.remove(); updateTotals(); };
+      tdRemove.appendChild(btn);
+      row.appendChild(tdRemove);
+
+      tbody.appendChild(row);
+      updateTotals();
+    }
+
+    function updateTotals() {
+      let total = { protein: 0, carb: 0, sugar: 0, fat: 0, cal: 0, sodium: 0 };
+      document.querySelectorAll('#ingredientTable tbody tr').forEach(tr => {
+        const tds = tr.querySelectorAll('td input');
+        total.protein += parseFloat(tds[1]?.value) || 0;
+        total.carb    += parseFloat(tds[2]?.value) || 0;
+        total.sugar   += parseFloat(tds[3]?.value) || 0;
+        total.fat     += parseFloat(tds[4]?.value) || 0;
+        total.cal     += parseFloat(tds[5]?.value) || 0;
+        total.sodium  += parseFloat(tds[6]?.value) || 0;
+      });
+      document.getElementById('totalBox').textContent =
+        `รวม: Protein: ${total.protein.toFixed(1)}g | Carb: ${total.carb.toFixed(1)}g | Sugar: ${total.sugar.toFixed(1)}g | Fat: ${total.fat.toFixed(1)}g | Cal: ${total.cal.toFixed(0)} kcal | Sodium: ${total.sodium.toFixed(0)} mg`;
+    }
+
+    fetchMenus();
+    addRow();
+  </script>
+</body>
+<body>
+  <div class="center-button">
+    <a href="summary.html">
+      <button style="padding: 12px 24px; font-size: 16px; background-color: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-family: 'Kanit', sans-serif;">
+        👉 ดูสรุปสารอาหารรายวัน
+      </button>
+    </a>
+  </div>
+</body>
+</html>
