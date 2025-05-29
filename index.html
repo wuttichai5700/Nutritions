@@ -78,6 +78,64 @@
       width: 100%;
     }
   </style>
+  <style>
+  @media screen and (max-width: 768px) {
+    .goal-setting {
+      gap: 10px;
+    }
+    .goal-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .goal-row label {
+      min-width: auto;
+      width: 100%;
+    }
+    .goal-row input[type="number"],
+    .goal-row button,
+    .goal-feedback {
+      width: 100%;
+      margin-top: 5px;
+    }
+    .goal-feedback {
+      text-align: left;
+    }
+    .bar-container {
+      height: 24px;
+    }
+    canvas {
+      max-width: 100% !important;
+    }
+    table {
+      font-size: 0.9rem;
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    th, td {
+      padding: 6px;
+    }
+    .center-button button {
+      width: 100%;
+      font-size: 1rem;
+      padding: 10px;
+    }
+    .container {
+      padding: 16px;
+    }
+    label,
+    select,
+    .btn {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .total,
+    .instructions {
+      font-size: 0.9rem;
+      word-wrap: break-word;
+    }
+  }
+</style>
 </head>
 <body>
   <div class="container">
