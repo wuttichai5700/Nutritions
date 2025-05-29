@@ -135,10 +135,49 @@
       word-wrap: break-word;
     }
   }
+  .animate__animated.animate__bounce {
+  --animate-duration: 2s;
+}
+
+/* This changes all the animations globally */
+:root {
+  --animate-duration: 800ms;
+  --animate-delay: 0.9s;
+}
+@keyframes pulseLogo {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+#logo {
+  animation: pulseLogo 2s ease-in-out infinite;
+  max-width: 150px;
+  display: block;
+  margin: 0 auto 10px;
+}
+body {
+  background: linear-gradient(-45deg, #c1ebee, #c2d8f7, #bfecf0, #a9dfe2);
+  background-size: 400% 400%;
+  animation: bgMove 15s ease infinite;
+}
+
+@keyframes bgMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+</style>
+
+
+</div>
 </style>
 </head>
 <body>
+  
   <div class="container">
+    <img id="logo" src="images/logo.png" alt="Logo" style="max-width: 150px; display: block; margin: 0 auto 10px;">
     <h2>คำนวณสารอาหารเมนูอาหาร</h2>
     <label for="menuSelect">เลือกเมนู:
       <select id="menuSelect"></select>
