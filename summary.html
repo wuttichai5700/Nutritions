@@ -2,20 +2,27 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
+  <meta name="description" content="สรุปสารอาหารรายวันจากเมนูอาหารที่คุณเลือก พร้อมบันทึกเป็น PDF/CSV และกำหนดเป้าหมายพลังงานสารอาหารได้เอง">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>สรุปสารอาหารรายวัน</title>
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels" defer></script>
 
   <style>
     body {
       font-family: 'Kanit', sans-serif;
-      background: linear-gradient(to bottom, #dff2ff, #eef7fb);
+      background: linear-gradient(-45deg, #c1ebee, #c2d8f7, #bfecf0, #a9dfe2);
+      background-size: 400% 400%;
+      animation: bgMove 15s ease infinite;
       padding: 40px;
+    }
+    @keyframes bgMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
     .container {
       max-width: 1000px;
@@ -45,9 +52,8 @@
       background-color: #3498db;
       color: white;
       border: none;
-      transition: background-color 0.3s ease;
-      font-family: 'Kanit', sans-serif;
       cursor: pointer;
+      transition: background-color 0.3s;
     }
     button:hover {
       background-color: #2980b9;
@@ -66,10 +72,6 @@
       background-color: #3498db;
       color: white;
     }
-    tfoot td {
-      font-weight: bold;
-      background: #ecf0f1;
-    }
     td button {
       background-color: #e74c3c;
       padding: 5px 10px;
@@ -82,9 +84,15 @@
       background-color: #c0392b;
     }
     #logo {
+      animation: pulseLogo 2s ease-in-out infinite;
+      max-width: 150px;
       display: block;
-      margin: 0 auto 20px;
-      max-width: 120px;
+      margin: 0 auto 10px;
+    }
+    @keyframes pulseLogo {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
     }
     .warning {
       margin-top: 20px;
@@ -101,189 +109,142 @@
       margin-bottom: 15px;
     }
     .goal-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
-}
-
-.goal-row label {
-  font-weight: bold;
-  min-width: 230px; /* สำคัญ: บังคับให้ label ทุกแถวกว้างเท่ากัน */
-}
-
-.goal-row input[type="number"] {
-  width: 120px;
-}
-
-.goal-row button {
-  min-width: 80px;
-}
-
-.goal-feedback {
-  min-width: 100px;
-  color: green;
-}
-
-    @media print {
-      label, select, button, td:last-child, th:last-child, .sodium-setting, .goal-setting { display: none !important; }
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .goal-row label {
+      font-weight: bold;
+      min-width: 230px;
+    }
+    .goal-row input[type="number"] {
+      width: 120px;
+    }
+    .goal-row button {
+      min-width: 80px;
+    }
+    .goal-feedback {
+      min-width: 100px;
+      color: green;
     }
     .center-button {
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
+      gap: 10px;
       margin-top: 30px;
       width: 100%;
     }
-    .bar-container {
-  background-color: #ecf0f1;
-  border-radius: 20px;
-  overflow: hidden;
-  height: 28px;
-  margin-bottom: 15px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.bar-fill {
-  height: 100%;
-  line-height: 28px;
-  text-align: right;
-  padding-right: 12px;
-  font-weight: bold;
-  color: white;
-  border-radius: 20px;
-  transition: width 0.6s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
+    .center-button button {
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 8px;
+      font-family: 'Kanit', sans-serif;
+    }
+    .dark-mode {
+      background: #121212;
+      color: #f5f5f5;
+    }
+    .dark-mode .container {
+      background: #1e1e1e;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+    .dark-mode table th {
+      background: #333;
+    }
+    #loading {
+      text-align: center;
+      margin: 20px 0;
+    }
   </style>
   <style>
-  @media screen and (max-width: 768px) {
-    .goal-setting {
-      gap: 10px;
-    }
-    .goal-row {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    .goal-row label {
-      min-width: auto;
-      width: 100%;
-    }
-    .goal-row input[type="number"],
-    .goal-row button,
-    .goal-feedback {
-      width: 100%;
-      margin-top: 5px;
-    }
-    .goal-feedback {
-      text-align: left;
-    }
-    .bar-container {
-      height: 24px;
-    }
-    canvas {
-      max-width: 100% !important;
-    }
-    table {
-      font-size: 0.9rem;
-      display: block;
-      overflow-x: auto;
-      white-space: nowrap;
-    }
-    th, td {
-      padding: 6px;
-    }
-    .center-button button {
-      width: 100%;
-      font-size: 1rem;
-      padding: 10px;
-    }
+@media print {
+  /* ซ่อนปุ่มต่างๆ ตอนพิมพ์ */
+  .center-button {
+    display: none !important;
   }
-  
+
+  /* ซ่อน Dark Mode หรือปุ่มอื่นๆ */
+  button, select, input, label {
+    display: none !important;
+  }
+
+  /* ซ่อนปุ่มตาม class หรือ id เพิ่มเติม (ถ้ามี) */
+}
+</style>
+<style>
+@media print {
+  h3 {
+    margin-bottom: 4px; /* ชิดตาราง */
+    margin-top: 2px; /* ห่างจากหัวข้อบนพอดี */
+    font-size: 1.1rem;
+  }
+
+  table {
+    margin-top: 0px; /* เอา table ชิดหัวมื้อเลย */
+  }
+}
+</style>
+<style>
+@media print {
+  #logo {
+    display: none !important;
+  }
+}
 </style>
 
 </head>
 <body>
-  
   <div class="container" id="pdfContent">
-
-     <div  id="pdfContent">
-   
-<style>
-@keyframes pulseLogo {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.08); }
-  100% { transform: scale(1); }
-}
-
-#logo {
-  animation: pulseLogo 2s ease-in-out infinite;
-  max-width: 150px;
-  display: block;
-  margin: 0 auto 10px;
-}
-body {
-  background: linear-gradient(-45deg, #c1ebee, #c2d8f7, #bfecf0, #a9dfe2);
-  background-size: 400% 400%;
-  animation: bgMove 15s ease infinite;
-}
-
-@keyframes bgMove {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-</style>
-
-
-<img id="logo" src="images/logo.png" alt="Logo" style="max-width: 150px; display: block; margin: 0 auto 10px;">
-
-
-
-
+    <img id="logo" src="images/logo.png" alt="Logo">
     <h2>เลือกเมนูที่คุณทานวันนี้</h2>
-</div>
+
+    <div id="loading">กำลังโหลดเมนู...</div>
+
     <div class="goal-setting">
       <div class="goal-row">
         <label for="goalCarb">เป้าหมาย Carb (g):</label>
         <input type="number" id="goalCarb" value="300">
         <button onclick="saveGoal('Carb')">✔️ ยืนยัน</button>
-        <span id="statusCarb" class="goal-feedback success"></span>
+        <span id="statusCarb" class="goal-feedback"></span>
       </div>
       <div class="goal-row">
         <label for="goalProtein">เป้าหมาย Protein (g):</label>
         <input type="number" id="goalProtein" value="150">
         <button onclick="saveGoal('Protein')">✔️ ยืนยัน</button>
-        <span id="statusProtein" class="goal-feedback success"></span>
+        <span id="statusProtein" class="goal-feedback"></span>
       </div>
       <div class="goal-row">
         <label for="goalFat">เป้าหมาย Fat (g):</label>
         <input type="number" id="goalFat" value="70">
         <button onclick="saveGoal('Fat')">✔️ ยืนยัน</button>
-        <span id="statusFat" class="goal-feedback success"></span>
+        <span id="statusFat" class="goal-feedback"></span>
       </div>
-       <div class="sodium-setting goal-row">
-      <label for="sodiumLimit">ตั้งค่าปริมาณโซเดียมสูงสุด (mg):</label>
-      <input type="number" id="sodiumLimit" value="2000">
-      <button onclick="saveSodiumLimit()">✔️ ยืนยัน</button>
-      <span id="statusSodium" class="goal-feedback success"></span>
-    </div>
+      <div class="goal-row">
+        <label for="goalSugar">เป้าหมาย Sugar (g):</label>  <!-- ใหม่ -->
+        <input type="number" id="goalSugar" value="50">
+        <button onclick="saveGoal('Sugar')">✔️ ยืนยัน</button>
+        <span id="statusSugar" class="goal-feedback"></span>
+      </div>
+      <div class="goal-row">
+        <label for="sodiumLimit">ตั้งค่าปริมาณโซเดียมสูงสุด (mg):</label>
+        <input type="number" id="sodiumLimit" value="2000">
+        <button onclick="saveGoal('Sodium')">✔️ ยืนยัน</button>
+        <span id="statusSodium" class="goal-feedback"></span>
+      </div>
       <div class="goal-row">
         <label for="goalCalorie">เป้าหมาย Calories (kcal):</label>
         <input type="number" id="goalCalorie" value="2000">
         <button onclick="saveGoal('Calorie')">✔️ ยืนยัน</button>
-        <span id="statusCalorie" class="goal-feedback success"></span>
+        <span id="statusCalorie" class="goal-feedback"></span>
       </div>
     </div>
-   
-<div style="text-align: right; margin-top: 10px;">
-      <button onclick="resetAllData()" style="background-color: #e74c3c; padding: 8px 16px; border-radius: 6px;">🔄 เคลียร์ข้อมูลทั้งหมด</button>
+
+    <div style="text-align: right; margin-top: 10px;">
+      <button onclick="resetAllData()" style="background-color: #e74c3c;">🔄 เคลียร์ข้อมูลทั้งหมด</button>
     </div>
-    <div id="progressBars" class="container" ></div>
-<br><br>
-    
 
     <label for="mealTime">เลือกมื้อ:</label>
     <select id="mealTime">
@@ -292,69 +253,81 @@ body {
       <option value="เย็น">เย็น</option>
       <option value="ดึก">ดึก</option>
     </select>
+
     <label for="menuDropdown">เลือกเมนู:</label>
     <select id="menuDropdown">
-      <option value="">-- เลือกเมนู --</option>
-      <option value="สุกี้อกไก่">สุกี้อกไก่</option>
-      <option value="ข้าวผัดกุ้ง">ข้าวผัดกุ้ง</option>
-      <option value="อกไก่ + น้ำจิ้ม">อกไก่ + น้ำจิ้ม</option>
-      <option value="เมี่ยงปลาทู">เมี่ยงปลาทู</option>
-      <option value="ลูกชิ้นอกไก่">ลูกชิ้นอกไก่</option>
-      <option value="อกไก่ผัดกระหล่ำ">อกไก่ผัดกระหล่ำ</option>
-      <option value="ยำอกไก่ผักรวม">ยำอกไก่ผักรวม</option>
-      <option value="อกไก่ + กล้วย">อกไก่ + กล้วย</option>
-      <option value="ข้าวไข่ต้ม">ข้าวไข่ต้ม</option>
-      <option value="ข้าวผัดอกไก่">ข้าวผัดอกไก่</option>
-      <option value="กล้วยหอม">กล้วยหอม</option>
-      <option value="ขนมปังโอรีโอ 3 แผ่น">ขนมปังโอรีโอ 3 แผ่น</option>
-      <option value="ยำอกไก่">ยำอกไก่</option>
-      <option value="น้ำเต้าหู้">น้ำเต้าหู้</option>
+      <option value="">-- กำลังโหลดเมนู --</option>
     </select>
 
     <button onclick="addSelectedMenu()">➕ เพิ่มเมนู</button>
-    <button onclick="window.print()">🖨️ พิมพ์</button>
-    <button onclick="downloadPDF()">📄 บันทึก PDF</button>
 
     <div id="mealTables"></div>
     <div class="warning" id="alerts"></div>
+
+    <h2>สรุปสัดส่วนสารอาหารรวมวันนี้</h2>
+    <canvas id="nutritionChart"></canvas>
+    <p id="totalCalories" style="text-align:center; font-weight:bold; font-size:1.2rem;"></p>
+
+    <div class="center-button">
+      <button onclick="window.print()">🖨️ พิมพ์</button>
+      <button onclick="downloadPDF()">📄 บันทึก PDF</button>
+      <button onclick="exportCSV()">⬇️ บันทึก CSV</button>
+      <button onclick="toggleDarkMode()">🌙 Dark Mode</button>
+    </div>
   </div>
 
   <script>
-   const menuData = {"สุกี้อกไก่": { carb: 44.2, protein: 64, fat: 21.1, sodium: 771, cal: 607 },
-      "ข้าวผัดกุ้ง": { carb: 59.4, protein: 47.4, fat: 17.0, sodium: 686, cal: 715 },
-      "อกไก่ + น้ำจิ้ม": { carb: 2, protein: 44, fat: 5.5, sodium: 780, cal: 270 },
-      "เมี่ยงปลาทู": { carb: 86.8, protein: 77.6, fat: 16.0, sodium: 1020, cal: 860 },
-      "ลูกชิ้นอกไก่": { carb: 0, protein: 66, fat: 7.5, sodium: 635, cal: 390 },
-      "อกไก่ผัดกระหล่ำ": { carb: 30, protein: 32.1, fat: 10.0, sodium: 1011, cal: 339 },
-      "ยำอกไก่ผักรวม": { carb: 73.2, protein: 27.0, fat: 21.6, sodium: 265, cal: 585 },
-      "อกไก่ + กล้วย": { carb: 8, protein: 44.0, fat: 5.2, sodium: 580, cal: 315 },
-      "ข้าวไข่ต้ม": { carb: 55, protein: 55, fat: 23.5, sodium: 585, cal: 700 },
-      "ข้าวผัดอกไก่": { carb: 76, protein: 86.8, fat: 20.4, sodium: 780, cal: 943 },
-      "ขนมปังโอรีโอ 3 แผ่น": { carb: 22, protein: 6, fat: 2, sodium: 280, cal: 140 },
-      "กล้วยหอม": { carb: 32, protein: 0, fat: 0.5, sodium: 0, cal: 132 },
-      "ยำอกไก่": { carb: 0, protein: 44, fat: 6, sodium: 400, cal: 270 },
-      "น้ำเต้าหู้": { carb: 12, protein: 8, fat: 4, sodium: 0, cal: 120 }};; // Add menu nutrition data here
-     let meals = JSON.parse(localStorage.getItem("meals")) || { "เช้า": [], "เที่ยง": [], "เย็น": [], "ดึก": [] };
+    let menuData = {};
+    let meals = JSON.parse(localStorage.getItem("meals")) || { "เช้า": [], "เที่ยง": [], "เย็น": [], "ดึก": [] };
+    let calGoal = parseInt(localStorage.getItem("calorieGoal")) || 2000;
+    let carbGoal = parseInt(localStorage.getItem("carbGoal")) || 300;
+    let proteinGoal = parseInt(localStorage.getItem("proteinGoal")) || 150;
+    let fatGoal = parseInt(localStorage.getItem("fatGoal")) || 70;
+    let sugarGoal = parseInt(localStorage.getItem("sugarGoal")) || 50; // ใหม่
+    let sodiumLimit = parseInt(localStorage.getItem("sodiumLimit")) || 2000;
+    let nutritionChart;
+
+    document.getElementById("goalCalorie").value = calGoal;
+    document.getElementById("goalCarb").value = carbGoal;
+    document.getElementById("goalProtein").value = proteinGoal;
+    document.getElementById("goalFat").value = fatGoal;
+    document.getElementById("goalSugar").value = sugarGoal;
+    document.getElementById("sodiumLimit").value = sodiumLimit;
+
+    async function loadMenus() {
+      const res = await fetch("https://script.google.com/macros/s/AKfycbzu8br-gv-gK4vREyf4t3ycQ0E830wbqIId0nbNAMgudKwMikm8STiotvS1q62-h72XWQ/exec");
+      const data = await res.json();
+      document.getElementById('loading').style.display = 'none';
+      const select = document.getElementById('menuDropdown');
+      select.innerHTML = '<option value="">-- เลือกเมนู --</option>';
+      data.forEach(item => {
+        menuData[item.menu] = { carb: item.carb, protein: item.protein, fat: item.fat, sugar: item.sugar || 0, sodium: item.sodium, cal: item.cal };
+        const option = document.createElement('option');
+        option.value = item.menu;
+        option.textContent = item.menu;
+        select.appendChild(option);
+      });
+    }
 
     function saveGoal(nutrient) {
-      const id = `goal${nutrient}`;
-      const value = parseInt(document.getElementById(id).value) || 0;
-      localStorage.setItem(nutrient.toLowerCase() + 'Goal', value);
-
+      const inputId = nutrient === 'Sodium' ? "sodiumLimit" : `goal${nutrient}`;
+      const value = parseInt(document.getElementById(inputId).value) || 0;
+      localStorage.setItem((nutrient === 'Sodium' ? 'sodiumLimit' : nutrient.toLowerCase() + 'Goal'), value);
       if (nutrient === 'Carb') carbGoal = value;
       if (nutrient === 'Protein') proteinGoal = value;
       if (nutrient === 'Fat') fatGoal = value;
+      if (nutrient === 'Sugar') sugarGoal = value;
       if (nutrient === 'Calorie') calGoal = value;
-
+      if (nutrient === 'Sodium') sodiumLimit = value;
       document.getElementById('status' + nutrient).innerText = "ยืนยันแล้ว";
       renderTables();
     }
 
-    function saveSodiumLimit() {
-      sodiumLimit = parseInt(document.getElementById("sodiumLimit").value) || 2000;
-      localStorage.setItem("sodiumLimit", sodiumLimit);
-      document.getElementById("statusSodium").innerText = "ยืนยันแล้ว";
-      renderTables();
+    function resetAllData() {
+      if (confirm("คุณต้องการล้างข้อมูลทั้งหมดหรือไม่?")) {
+        localStorage.clear();
+        location.reload();
+      }
     }
 
     function addSelectedMenu() {
@@ -372,239 +345,207 @@ body {
       localStorage.setItem("meals", JSON.stringify(meals));
       renderTables();
     }
-     function resetAllData() {
-      localStorage.clear();
-      location.reload();
-    }
-    function resetAllData() {
-     const confirmClear = confirm("คุณต้องการล้างข้อมูลทั้งหมดหรือไม่?");
-     if (confirmClear) {
-    localStorage.clear();
-    location.reload();
-      }
-      }
-
-    window.onload = function() {
-      renderTables();
-    }
 
     function renderTables() {
-      const container = document.getElementById('mealTables');
-      container.innerHTML = '';
-      let total = { carb: 0, protein: 0, fat: 0, sodium: 0, cal: 0 };
+  const container = document.getElementById('mealTables');
+  container.innerHTML = '';
 
-      for (const meal in meals) {
-        if (meals[meal].length === 0) continue;
-        const table = document.createElement('table');
-        const header = `<h3>มื้อ${meal}</h3>`;
-        table.innerHTML = `
-          <thead><tr><th>เมนู</th><th>Carb</th><th>Protein</th><th>Fat</th><th>Sodium</th><th>Calories</th><th>ลบ</th></tr></thead>
-          <tbody>${meals[meal].map(name => {
-            const d = menuData[name] || {carb:0, protein:0, fat:0, sodium:0, cal:0};
-            total.carb += d.carb; total.protein += d.protein; total.fat += d.fat;
-            total.sodium += d.sodium; total.cal += d.cal;
-            return `<tr><td>${name}</td><td>${d.carb}</td><td>${d.protein}</td><td>${d.fat}</td><td>${d.sodium}</td><td>${d.cal}</td><td><button onclick="removeMenu('${meal}','${name}')">❌</button></td></tr>`
-          }).join('')}</tbody>`;
-        container.innerHTML += header;
-        container.appendChild(table);
-      }
+  let total = { carb: 0, protein: 0, fat: 0, sugar: 0, sodium: 0, cal: 0 };
 
-      const warnBox = document.getElementById('alerts');
-      let alerts = [];
-      if (total.sodium > sodiumLimit) alerts.push(`โซเดียมสูงเกิน ${sodiumLimit}mg`);
-      if (total.carb > carbGoal) alerts.push(`Carb เกิน ${carbGoal}g`);
-      if (total.protein > proteinGoal) alerts.push(`Protein เกิน ${proteinGoal}g`);
-      if (total.fat > fatGoal) alerts.push(`Fat เกิน ${fatGoal}g`);
-      warnBox.innerHTML = alerts.length ? `⚠️ ${alerts.join(' | ')}` : '';
-    }
+  for (const meal in meals) {
+    if (meals[meal].length === 0) continue;
+    const table = document.createElement('table');
+    const header = `<h3>มื้อ${meal}</h3>`;
+    table.innerHTML = `
+      <thead><tr><th>เมนู</th><th>Carb</th><th>Protein</th><th>Fat</th><th>Sugar</th><th>Sodium</th><th>Calories</th><th>ลบ</th></tr></thead>
+      <tbody>${meals[meal].map(name => {
+        const d = menuData[name] || { carb: 0, protein: 0, fat: 0, sugar: 0, sodium: 0, cal: 0 };
+        total.carb += d.carb;
+        total.protein += d.protein;
+        total.fat += d.fat;
+        total.sugar += d.sugar;
+        total.sodium += d.sodium;
+        total.cal += d.cal;
+        return `<tr><td>${name}</td><td>${d.carb}</td><td>${d.protein}</td><td>${d.fat}</td><td>${d.sugar}</td><td>${d.sodium}</td><td>${d.cal}</td><td><button onclick="removeMenu('${meal}','${name}')">❌</button></td></tr>`;
+      }).join('')}</tbody>`;
+    container.innerHTML += header;
+    container.appendChild(table);
+  }
+
+  const warnBox = document.getElementById('alerts');
+  let alerts = [];
+
+  const kcalPerG = { carb: 4, protein: 4, fat: 9, sugar: 4 };
+
+  if (total.sodium > sodiumLimit) alerts.push(`โซเดียมเกิน ${sodiumLimit}mg`);
+  if (total.sugar > sugarGoal) {
+    const overSugar = total.sugar - sugarGoal;
+    alerts.push(`Sugar เกิน ${overSugar.toFixed(1)}g (~${Math.round(overSugar * kcalPerG.sugar)}kcal)`);
+  }
+  if (total.carb > carbGoal) {
+    const overCarb = total.carb - carbGoal;
+    alerts.push(`Carb เกิน ${overCarb.toFixed(1)}g (~${Math.round(overCarb * kcalPerG.carb)}kcal)`);
+  }
+  if (total.protein > proteinGoal) {
+    const overProtein = total.protein - proteinGoal;
+    alerts.push(`Protein เกิน ${overProtein.toFixed(1)}g (~${Math.round(overProtein * kcalPerG.protein)}kcal)`);
+  }
+  if (total.fat > fatGoal) {
+    const overFat = total.fat - fatGoal;
+    alerts.push(`Fat เกิน ${overFat.toFixed(1)}g (~${Math.round(overFat * kcalPerG.fat)}kcal)`);
+  }
+  if (total.cal > calGoal) {
+    const overCal = total.cal - calGoal;
+    alerts.push(`Calories เกิน ${overCal.toFixed(0)}kcal`);
+  }
+
+  warnBox.innerHTML = alerts.length ? `⚠️ ${alerts.join(' | ')}` : '';
+
+  updateChart(total.carb, total.protein, total.fat, total.cal);
+}
+
+function updateChart(totalCarb, totalProtein, totalFat, totalCal) {
+  const ctx = document.getElementById('nutritionChart').getContext('2d');
+  const data = [totalCarb, totalProtein, totalFat];
+  const labels = ['Carb', 'Protein', 'Fat'];
+
+  if (nutritionChart) {
+    nutritionChart.data.datasets[0].data = data;
+    nutritionChart.update();
+  } else {
+    nutritionChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: ['#f39c12', '#27ae60', '#e67e22']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              generateLabels: (chart) => {
+                const dataset = chart.data.datasets[0].data;
+                return chart.data.labels.map((label, i) => ({
+                  text: `${label}: ${dataset[i]}g`,
+                  fillStyle: chart.data.datasets[0].backgroundColor[i],
+                  strokeStyle: chart.data.datasets[0].backgroundColor[i],
+                  lineWidth: 1
+                }));
+              }
+            }
+          },
+          title: {
+            display: true,
+            text: 'สัดส่วนสารอาหาร (g)'
+          },
+          datalabels: {
+            color: '#fff',
+            font: {
+              weight: 'bold',
+              size: 16
+            },
+            formatter: (value, context) => {
+              const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+              const percentage = (value / total * 100).toFixed(1);
+              return `${percentage}%`;
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                const label = context.label || '';
+                const value = context.parsed;
+                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                const percentage = (value / total * 100).toFixed(1);
+                return `${label}: ${value}g (${percentage}%)`;
+              }
+            }
+          }
+        }
+      },
+      plugins: [ChartDataLabels]
+    });
+  }
+
+  document.getElementById('totalCalories').innerText = `พลังงานรวม: ${totalCal} kcal (เป้าหมาย: ${calGoal} kcal)`;
+}
+
+
+
+
 
     function downloadPDF() {
       const element = document.getElementById('pdfContent');
+      const logo = document.getElementById('logo');
+      const buttons = document.querySelectorAll('.center-button, button, select, input, label');
+
+      logo.style.display = 'none';
+      buttons.forEach(btn => btn.style.display = 'none');
+
       const opt = {
         margin: 0.5,
         filename: 'nutrition-summary.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
+        html2canvas: { scale: 1 },
         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
       };
-      html2pdf().set(opt).from(element).save();
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        logo.style.display = '';
+        buttons.forEach(btn => btn.style.display = '');
+      });
     }
 
-function saveGoal(nutrient) {
-  const id = `goal${nutrient}`;
-  const value = parseInt(document.getElementById(id).value) || 0;
-  localStorage.setItem(nutrient.toLowerCase() + 'Goal', value);
+    function exportCSV() {
+      const now = new Date();
+      const today = now.toLocaleDateString('th-TH');
+      const time = now.toLocaleTimeString('th-TH');
 
-  // ตั้งค่าตัวแปร global
-  if (nutrient === 'Carb') carbGoal = value;
-  if (nutrient === 'Protein') proteinGoal = value;
-  if (nutrient === 'Fat') fatGoal = value;
+      let csv = `วันที่,${today}\nเวลา,${time}\n\n`;
+      csv += "มื้อ,เมนู,Carb (g),Protein (g),Fat (g),Sugar (g),Sodium (mg),Calories (kcal)\n";
 
-  // แสดงสถานะ
-  document.getElementById('status' + nutrient).innerText = "ยืนยันแล้ว";
-  alert(`${nutrient} ยืนยันแล้วเป็น ${value}`);
-  renderTables();
-}
-
-function saveSodiumLimit() {
-  sodiumLimit = parseInt(document.getElementById("sodiumLimit").value) || 2000;
-  localStorage.setItem("sodiumLimit", sodiumLimit);
-  document.getElementById("statusSodium").innerText = "ยืนยันแล้ว";
-  alert(`Sodium ยืนยันแล้วเป็น ${sodiumLimit}`);
-  renderTables();
-}
-
-
-  </script>
- <br>
-
-  <div class="container">
-    <h2>สรุปสัดส่วนสารอาหารรวมวันนี้</h2>
-    <canvas id="nutritionChart"></canvas>
-    <p id="totalCalories" style="text-align:center; font-weight:bold; font-size:1.2rem; margin-top:10px;"></p>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-  <script>
-    let nutritionChart;
-     
-  
-    let calGoal = parseInt(localStorage.getItem("calorieGoal")) || 2000;
-    let carbGoal = parseInt(localStorage.getItem("carbGoal")) || 300;
-    let proteinGoal = parseInt(localStorage.getItem("proteinGoal")) || 150;
-    let fatGoal = parseInt(localStorage.getItem("fatGoal")) || 70;
-    let sodiumLimit = parseInt(localStorage.getItem("sodiumLimit")) || 2000;
-
-    document.getElementById("goalCalorie").value = calGoal;
-    document.getElementById("goalCarb").value = carbGoal;
-    document.getElementById("goalProtein").value = proteinGoal;
-    document.getElementById("goalFat").value = fatGoal;
-    document.getElementById("sodiumLimit").value = sodiumLimit;
-
-    function saveGoal(nutrient) {
-      const id = `goal${nutrient}`;
-      const value = parseInt(document.getElementById(id).value) || 0;
-      localStorage.setItem(nutrient.toLowerCase() + 'Goal', value);
-
-      if (nutrient === 'Carb') carbGoal = value;
-      if (nutrient === 'Protein') proteinGoal = value;
-      if (nutrient === 'Fat') fatGoal = value;
-      if (nutrient === 'Calorie') calGoal = value;
-
-      document.getElementById('status' + nutrient).innerText = "ยืนยันแล้ว";
-      alert(`${nutrient} ยืนยันแล้วเป็น ${value}`);
-      renderTables();
-    }
-
-    function updateProgressBars(total) {
-  const barsHTML = ['Carb', 'Protein', 'Fat'].map((key, i) => {
-    const current = total[key.toLowerCase()] || 0;
-    const goal = [carbGoal, proteinGoal, fatGoal][i];
-    const percent = goal ? Math.min(100, Math.round((current / goal) * 100)) : 0;
-
-    const gradients = [
-      'linear-gradient(to right, #f9d423, #f39c12)',   // Carb
-      'linear-gradient(to right, #43e97b, #38f9d7)',   // Protein
-      'linear-gradient(to right, #f7971e, #e67e22)'    // Fat
-    ];
-
-    return `
-      <div style="margin-bottom: 5px;"><strong>${key}</strong></div>
-      <div class="bar-container">
-        <div class="bar-fill" style="width: ${percent}%; background: ${gradients[i]};">
-          ${percent}%
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  document.getElementById("progressBars").innerHTML = `
-    <h3>สรุปภาพรวมการบริโภค</h3>
-    ${barsHTML}
-  `;
-}
-
-
-    function updateChart(totalCarb, totalProtein, totalFat, totalCal) {
-      const ctx = document.getElementById('nutritionChart').getContext('2d');
-      const data = {
-        labels: ['Carb', 'Protein', 'Fat'],
-        datasets: [{
-          data: [totalCarb, totalProtein, totalFat],
-          backgroundColor: ['#f39c12', '#27ae60', '#e67e22']
-        }]
-      };
-
-      const options = {
-  responsive: true,
-  plugins: {
-    legend: { position: 'bottom' },
-    title: { display: true, text: 'Graph For Nutrations' },
-    datalabels: {
-      color: '#fff',
-      formatter: (value) => `${value.toFixed(1)}g`,  // <== ปัดทศนิยมเหลือ 1 ตำแหน่ง
-      font: { weight: 'bold' }
-    }
-  }
-};
-
-
-      if (nutritionChart) {
-        nutritionChart.data.datasets[0].data = [totalCarb, totalProtein, totalFat];
-        nutritionChart.update();
-      } else {
-        nutritionChart = new Chart(ctx, {
-          type: 'pie',
-          data,
-          options,
-          plugins: [ChartDataLabels]
+      let total = { carb: 0, protein: 0, fat: 0, sugar: 0, sodium: 0, cal: 0 };
+      for (const meal in meals) {
+        meals[meal].forEach(name => {
+          const d = menuData[name];
+          csv += `${meal},${name},${d.carb},${d.protein},${d.fat},${d.sugar},${d.sodium},${d.cal}\n`;
+          total.carb += d.carb;
+          total.protein += d.protein;
+          total.fat += d.fat;
+          total.sugar += d.sugar;
+          total.sodium += d.sodium;
+          total.cal += d.cal;
         });
       }
-      document.getElementById('totalCalories').innerText = `พลังงานรวม: ${totalCal} kcal (เป้าหมาย: ${calGoal} kcal)`;
+
+      csv += `รวม,,${total.carb},${total.protein},${total.fat},${total.sugar},${total.sodium},${total.cal}\n`;
+      csv += `เป้าหมาย,,${carbGoal},${proteinGoal},${fatGoal},${sugarGoal},${sodiumLimit},${calGoal}\n`;
+      // ขาด/เกิน
+csv += `ขาด/เกิน,,${(total.carb - carbGoal).toFixed(1)},${(total.protein - proteinGoal).toFixed(1)},${(total.fat - fatGoal).toFixed(1)},${(total.sugar - sugarGoal).toFixed(1)},${(total.sodium - sodiumLimit).toFixed(0)},${(total.cal - calGoal).toFixed(0)}\n`;
+
+      const BOM = '\uFEFF';
+      const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
+
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `nutrition-summary.csv`;
+      link.click();
     }
 
-    function renderTables() {
-      const container = document.getElementById('mealTables');
-      container.innerHTML = '';
-      let total = { carb: 0, protein: 0, fat: 0, sodium: 0, cal: 0 };
-
-      for (const meal in meals) {
-        if (meals[meal].length === 0) continue;
-        const table = document.createElement('table');
-        const header = `<h3>มื้อ${meal}</h3>`;
-        table.innerHTML = `
-          <thead><tr><th>เมนู</th><th>Carb</th><th>Protein</th><th>Fat</th><th>Sodium</th><th>Calories</th><th>ลบ</th></tr></thead>
-          <tbody>${meals[meal].map(name => {
-            const d = menuData[name] || {carb:0, protein:0, fat:0, sodium:0, cal:0};
-            total.carb += d.carb; total.protein += d.protein; total.fat += d.fat;
-            total.sodium += d.sodium; total.cal += d.cal;
-            return `<tr><td>${name}</td><td>${d.carb}</td><td>${d.protein}</td><td>${d.fat}</td><td>${d.sodium}</td><td>${d.cal}</td><td><button onclick="removeMenu('${meal}','${name}')">❌</button></td></tr>`
-          }).join('')}</tbody>`;
-        container.innerHTML += header;
-        container.appendChild(table);
-      }
-
-      const warnBox = document.getElementById('alerts');
-      let alerts = [];
-      if (total.sodium > sodiumLimit) alerts.push(`โซเดียมสูงเกิน ${sodiumLimit}mg (+${total.sodium - sodiumLimit}mg)`);
-      if (total.carb > carbGoal) alerts.push(`Carb เกิน ${carbGoal}g (+${(total.carb - carbGoal).toFixed(1)}g)`);
-      if (total.protein > proteinGoal) alerts.push(`Protein เกิน ${proteinGoal}g (+${(total.protein - proteinGoal).toFixed(1)}g)`);
-      if (total.fat > fatGoal) alerts.push(`Fat เกิน ${fatGoal}g (+${(total.fat - fatGoal).toFixed(1)}g)`);
-      if (total.cal > calGoal) alerts.push(`Calories เกิน ${calGoal}kcal (+${(total.cal - calGoal).toFixed(1)}kcal)`);
-      warnBox.innerHTML = alerts.length ? `⚠️ ${alerts.join(' | ')}` : '';
-
-      updateChart(total.carb, total.protein, total.fat, total.cal);
-      updateProgressBars(total);
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
     }
+
+    window.onload = async () => {
+      await loadMenus();
+      renderTables();
+    };
   </script>
-  <body>
-  <div class="center-button">
-    <a href="index.html">
-      <button style="padding: 12px 24px; font-size: 16px; background-color: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-family: 'Kanit', sans-serif;">
-        👈 กลับไปหน้าแรก
-      </button>
-    </a>
-  </div>
 </body>
-</body>
+
 </html>
