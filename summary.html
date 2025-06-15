@@ -11,189 +11,12 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels" defer></script>
 
-  <style>
-    body {
-      font-family: 'Kanit', sans-serif;
-      background: linear-gradient(-45deg, #c1ebee, #c2d8f7, #bfecf0, #a9dfe2);
-      background-size: 400% 400%;
-      animation: bgMove 15s ease infinite;
-      padding: 40px;
-    }
-    @keyframes bgMove {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    .container {
-      max-width: 1000px;
-      margin: auto;
-      background: #ffffff;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    }
-    h2 {
-      text-align: center;
-      color: #1a5276;
-    }
-    canvas {
-      margin: 20px auto;
-      display: block;
-      max-width: 500px;
-    }
-    select, button, input[type=number] {
-      padding: 10px;
-      font-size: 1rem;
-      margin: 5px 5px 5px 0;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-    button {
-      background-color: #3498db;
-      color: white;
-      border: none;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    button:hover {
-      background-color: #2980b9;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 30px;
-    }
-    th, td {
-      padding: 10px;
-      text-align: center;
-      border: 1px solid #ccc;
-    }
-    th {
-      background-color: #3498db;
-      color: white;
-    }
-    td button {
-      background-color: #e74c3c;
-      padding: 5px 10px;
-      border: none;
-      border-radius: 5px;
-      color: white;
-      cursor: pointer;
-    }
-    td button:hover {
-      background-color: #c0392b;
-    }
-    #logo {
-      animation: pulseLogo 2s ease-in-out infinite;
-      max-width: 150px;
-      display: block;
-      margin: 0 auto 10px;
-    }
-    @keyframes pulseLogo {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.08); }
-      100% { transform: scale(1); }
-    }
-    .warning {
-      margin-top: 20px;
-      padding: 15px;
-      background: #fff3cd;
-      border-left: 5px solid #ffc107;
-      color: #856404;
-      border-radius: 8px;
-    }
-    .goal-setting {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 15px;
-    }
-    .goal-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-    .goal-row label {
-      font-weight: bold;
-      min-width: 230px;
-    }
-    .goal-row input[type="number"] {
-      width: 120px;
-    }
-    .goal-row button {
-      min-width: 80px;
-    }
-    .goal-feedback {
-      min-width: 100px;
-      color: green;
-    }
-    .center-button {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 30px;
-      width: 100%;
-    }
-    .center-button button {
-      padding: 12px 24px;
-      font-size: 16px;
-      border-radius: 8px;
-      font-family: 'Kanit', sans-serif;
-    }
-    .dark-mode {
-      background: #121212;
-      color: #f5f5f5;
-    }
-    .dark-mode .container {
-      background: #1e1e1e;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-    }
-    .dark-mode table th {
-      background: #333;
-    }
-    #loading {
-      text-align: center;
-      margin: 20px 0;
-    }
-  </style>
-  <style>
-@media print {
-  /* ซ่อนปุ่มต่างๆ ตอนพิมพ์ */
-  .center-button {
-    display: none !important;
-  }
 
-  /* ซ่อน Dark Mode หรือปุ่มอื่นๆ */
-  button, select, input, label {
-    display: none !important;
-  }
+    
+<link rel="stylesheet" href="style/summary.css">
 
-  /* ซ่อนปุ่มตาม class หรือ id เพิ่มเติม (ถ้ามี) */
-}
-</style>
-<style>
-@media print {
-  h3 {
-    margin-bottom: 4px; /* ชิดตาราง */
-    margin-top: 2px; /* ห่างจากหัวข้อบนพอดี */
-    font-size: 1.1rem;
-  }
 
-  table {
-    margin-top: 0px; /* เอา table ชิดหัวมื้อเลย */
-  }
-}
-</style>
-<style>
-@media print {
-  #logo {
-    display: none !important;
-  }
-}
-</style>
+
 
 </head>
 <body>
@@ -250,6 +73,8 @@
     <select id="mealTime">
       <option value="เช้า">เช้า</option>
       <option value="เที่ยง">เที่ยง</option>
+      <option value="ทานเล่น">ทานเล่น</option>
+      <option value="ก่อนออกกำลังกาย">ก่อนออกกำลังกาย</option>
       <option value="เย็น">เย็น</option>
       <option value="ดึก">ดึก</option>
     </select>
@@ -269,16 +94,20 @@
     <p id="totalCalories" style="text-align:center; font-weight:bold; font-size:1.2rem;"></p>
 
     <div class="center-button">
-      <button onclick="window.print()">🖨️ พิมพ์</button>
+
       <button onclick="downloadPDF()">📄 บันทึก PDF</button>
       <button onclick="exportCSV()">⬇️ บันทึก CSV</button>
-      <button onclick="toggleDarkMode()">🌙 Dark Mode</button>
+      <a href="index.html">
+      <button style="padding: 12px 24px; font-size: 16px; background-color: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-family: 'Kanit', sans-serif;">
+        👉 ดูสรุปสารอาหารรายวัน
+      </button>
+    </a>
     </div>
   </div>
 
   <script>
     let menuData = {};
-    let meals = JSON.parse(localStorage.getItem("meals")) || { "เช้า": [], "เที่ยง": [], "เย็น": [], "ดึก": [] };
+    let meals = JSON.parse(localStorage.getItem("meals")) || { "เช้า": [], "เที่ยง": [],"ทานเล่น": [],"ก่อนออกกำลังกาย": [], "เย็น": [], "ดึก": [] };
     let calGoal = parseInt(localStorage.getItem("calorieGoal")) || 2000;
     let carbGoal = parseInt(localStorage.getItem("carbGoal")) || 300;
     let proteinGoal = parseInt(localStorage.getItem("proteinGoal")) || 150;
@@ -377,32 +206,72 @@
 
   const kcalPerG = { carb: 4, protein: 4, fat: 9, sugar: 4 };
 
-  if (total.sodium > sodiumLimit) alerts.push(`โซเดียมเกิน ${sodiumLimit}mg`);
-  if (total.sugar > sugarGoal) {
-    const overSugar = total.sugar - sugarGoal;
-    alerts.push(`Sugar เกิน ${overSugar.toFixed(1)}g (~${Math.round(overSugar * kcalPerG.sugar)}kcal)`);
-  }
-  if (total.carb > carbGoal) {
-    const overCarb = total.carb - carbGoal;
-    alerts.push(`Carb เกิน ${overCarb.toFixed(1)}g (~${Math.round(overCarb * kcalPerG.carb)}kcal)`);
-  }
-  if (total.protein > proteinGoal) {
-    const overProtein = total.protein - proteinGoal;
-    alerts.push(`Protein เกิน ${overProtein.toFixed(1)}g (~${Math.round(overProtein * kcalPerG.protein)}kcal)`);
-  }
-  if (total.fat > fatGoal) {
-    const overFat = total.fat - fatGoal;
-    alerts.push(`Fat เกิน ${overFat.toFixed(1)}g (~${Math.round(overFat * kcalPerG.fat)}kcal)`);
-  }
-  if (total.cal > calGoal) {
-    const overCal = total.cal - calGoal;
-    alerts.push(`Calories เกิน ${overCal.toFixed(0)}kcal`);
-  }
+// Carb
+  const diffCarb = total.carb - carbGoal;
+if (diffCarb > 0) {
+  alerts.push(`⚠️ Carb เกิน ${diffCarb.toFixed(1)}g (~${Math.round(diffCarb * kcalPerG.carb)}kcal)`);
+} else if (diffCarb < 0) {
+  alerts.push(`🛈 Carb ขาด ${Math.abs(diffCarb).toFixed(1)}g (~${Math.round(Math.abs(diffCarb) * kcalPerG.carb)}kcal)`);
+}
+
+// Protein
+  const diffProtein = total.protein - proteinGoal;
+if (diffProtein > 0) {
+  alerts.push(`⚠️ Protein เกิน ${diffProtein.toFixed(1)}g (~${Math.round(diffProtein * kcalPerG.protein)}kcal)`);
+} else if (diffProtein < 0) {
+  alerts.push(`🛈 Protein ขาด ${Math.abs(diffProtein).toFixed(1)}g (~${Math.round(Math.abs(diffProtein) * kcalPerG.protein)}kcal)`);
+}
+
+// Fat
+  const diffFat = total.fat - fatGoal;
+if (diffFat > 0) {
+  alerts.push(`⚠️ Fat เกิน ${diffFat.toFixed(1)}g (~${Math.round(diffFat * kcalPerG.fat)}kcal)`);
+} else if (diffFat < 0) {
+  alerts.push(`🛈 Fat ขาด ${Math.abs(diffFat).toFixed(1)}g (~${Math.round(Math.abs(diffFat) * kcalPerG.fat)}kcal)`);
+}
+
+// Sugar
+  const diffSugar = total.sugar - sugarGoal;
+if (diffSugar > 0) {
+  alerts.push(`⚠️ Sugar เกิน ${diffSugar.toFixed(1)}g (~${Math.round(diffSugar * kcalPerG.sugar)}kcal)`);
+} else if (diffSugar < 0) {
+  alerts.push(`🛈 Sugar ขาด ${Math.abs(diffSugar).toFixed(1)}g (~${Math.round(Math.abs(diffSugar) * kcalPerG.sugar)}kcal)`);
+}
+
+//Sodium
+  const diffSodium = total.sodium - sodiumLimit;
+if (diffSodium > 0) {
+  alerts.push(`⚠️ Sodium เกิน ${diffSodium.toFixed(0)}mg`);
+} else if (diffSodium < 0) {
+  alerts.push(`🛈 Sodium ขาด ${Math.abs(diffSodium).toFixed(0)}mg`);
+}
+
+
+
+
+// Calories
+  const diffCal = total.cal - calGoal;
+if (diffCal > 0) {
+  alerts.push(`⚠️ Calories เกิน ${diffCal.toFixed(0)}kcal`);
+} else if (diffCal < 0) {
+  alerts.push(`🛈 Calories ขาด ${Math.abs(diffCal).toFixed(0)}kcal`);
+}
 
   warnBox.innerHTML = alerts.length ? `⚠️ ${alerts.join(' | ')}` : '';
+  if (alerts.length > 0) {
+  warnBox.innerHTML = `⚠️ ${alerts.join(' | ')}`;
+  warnBox.style.pageBreakBefore = "always";  // บังคับขึ้นหน้าใหม่
+  warnBox.style.breakBefore = "page";
+} else {
+  warnBox.innerHTML = "";
+  warnBox.style.pageBreakBefore = "";
+  warnBox.style.breakBefore = "";
+}
+
 
   updateChart(total.carb, total.protein, total.fat, total.cal);
 }
+
 
 function updateChart(totalCarb, totalProtein, totalFat, totalCal) {
   const ctx = document.getElementById('nutritionChart').getContext('2d');
@@ -429,14 +298,15 @@ function updateChart(totalCarb, totalProtein, totalFat, totalCal) {
             position: 'bottom',
             labels: {
               generateLabels: (chart) => {
-                const dataset = chart.data.datasets[0].data;
-                return chart.data.labels.map((label, i) => ({
-                  text: `${label}: ${dataset[i]}g`,
-                  fillStyle: chart.data.datasets[0].backgroundColor[i],
-                  strokeStyle: chart.data.datasets[0].backgroundColor[i],
-                  lineWidth: 1
-                }));
-              }
+  const dataset = chart.data.datasets[0].data;
+  return chart.data.labels.map((label, i) => ({
+    text: `${label}: ${dataset[i].toFixed(1)}g`, // ใช้ toFixed(1)
+    fillStyle: chart.data.datasets[0].backgroundColor[i],
+    strokeStyle: chart.data.datasets[0].backgroundColor[i],
+    lineWidth: 1
+  }));
+}
+
             }
           },
           title: {
@@ -450,20 +320,22 @@ function updateChart(totalCarb, totalProtein, totalFat, totalCal) {
               size: 16
             },
             formatter: (value, context) => {
-              const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-              const percentage = (value / total * 100).toFixed(1);
-              return `${percentage}%`;
-            }
+  const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+  const percentage = (value / total * 100).toFixed(1);
+  return `${percentage}%`;
+}
+
           },
           tooltip: {
             callbacks: {
               label: function (context) {
-                const label = context.label || '';
-                const value = context.parsed;
-                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                const percentage = (value / total * 100).toFixed(1);
-                return `${label}: ${value}g (${percentage}%)`;
-              }
+  const label = context.label || '';
+  const value = context.parsed.toFixed(1); // ตัดทศนิยม
+  const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+  const percentage = ((value / total) * 100).toFixed(1);
+  return `${label}: ${value}g (${percentage}%)`;
+}
+
             }
           }
         }
@@ -533,13 +405,11 @@ csv += `ขาด/เกิน,,${(total.carb - carbGoal).toFixed(1)},${(total.p
 
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `nutrition-summary.csv`;
+      link.download = `summary.csv`;
       link.click();
     }
 
-    function toggleDarkMode() {
-      document.body.classList.toggle('dark-mode');
-    }
+   
 
     window.onload = async () => {
       await loadMenus();
