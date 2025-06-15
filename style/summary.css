@@ -196,3 +196,31 @@ body {
     break-after: avoid-page;
   }
 }
+.table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+@media (max-width: 600px) {
+  th, td {
+    font-size: 0.85rem;
+    padding: 6px;
+  }
+
+  .goal-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .center-button button {
+    width: 100%;
+  }
+
+  .goal-row input[type="number"] {
+    width: 100%;
+  }
+
+  .goal-feedback {
+    display: block;
+    margin-top: 5px;
+  }
+}
